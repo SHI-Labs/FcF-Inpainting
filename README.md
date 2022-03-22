@@ -1,6 +1,6 @@
 # FcF-Inpainting
 
-[![Framework: PyTorch](https://img.shields.io/badge/Framework-PyTorch-orange.svg)](https://pytorch.org/)
+[![Framework: PyTorch](https://img.shields.io/badge/Framework-PyTorch-orange.svg)](https://pytorch.org/) [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 [Jitesh Jain](https://praeclarumjj3.github.io/), [Yuqian Zhou](https://yzhouas.github.io/), [Ning Yu](https://ningyu1991.github.io/), [Humphrey Shi](https://www.humphreyshi.com/home)
 <!-- 
@@ -75,7 +75,7 @@ This repo contains the code for our paper **Keys to Better Image Inpainting: Str
     bash tools/prepare_celebahq_evaluation.sh
     ```
 
-### Places Dataset
+### Places2 Dataset
 
 #### Training Data
 
