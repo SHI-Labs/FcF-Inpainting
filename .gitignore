@@ -1,0 +1,11 @@
+__pycache__/
+.cache/
+Style-AmOCo
+sample_collection.py
+training/demo_train_loader.py
+sample.sh
+test.py
+sample_collection.py
+extras/
+**.DS_Store
+Texture-Inpaint
