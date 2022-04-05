@@ -1,4 +1,13 @@
+# Copyright (c) 2021, NVIDIA CORPORATION.  All rights reserved.
+#
+# NVIDIA CORPORATION and its licensors retain all intellectual property
+# and proprietary rights in and to this software, related documentation
+# and any modifications thereto.  Any use, reproduction, disclosure or
+# distribution of this software and related documentation without an express
+# license agreement from NVIDIA CORPORATION is strictly prohibited.
+
 import numpy as np
+from numpy.lib.type_check import imag
 import torch
 import torch.nn as nn
 from torch_utils import misc
@@ -10,12 +19,37 @@ from torch_utils.ops import fma
 from icecream import ic
 import torch.nn.functional as F
 from training.ffc import FFCResnetBlock, ConcatTupleLayer
-
+import matplotlib.pyplot as plt
+import PIL
 #----------------------------------------------------------------------------
 
 @misc.profiled_function
 def normalize_2nd_moment(x, dim=1, eps=1e-8):
     return x * (x.square().mean(dim=dim, keepdim=True) + eps).rsqrt()
+
+def save_image_grid(feats, fname, gridsize):
+    gw, gh = gridsize
+    idx = gw * gh
+
+    max_num = torch.max(feats[:idx]).item()
+    min_num = torch.min(feats[:idx]).item()
+    feats = feats[:idx].cpu() * 255 / (max_num - min_num) 
+    feats = np.asarray(feats, dtype=np.float32)
+    feats = np.rint(feats).clip(0, 255).astype(np.uint8)
+
+    C, H, W = feats.shape
+
+    feats = feats.reshape(gh, gw, 1, H, W)
+    feats = feats.transpose(0, 3, 1, 4, 2)
+    feats = feats.reshape(gh * H, gw * W, 1)
+    feats = np.stack([feats]*3, axis=2).squeeze() * 10
+    feats = np.rint(feats).clip(0, 255).astype(np.uint8)
+    
+    from icecream import ic
+    ic(feats.shape)
+    
+    feats = PIL.Image.fromarray(feats)
+    feats.save(fname + '.png')
 
 #----------------------------------------------------------------------------
 
@@ -170,10 +204,10 @@ class FFCBlock(torch.nn.Module):
     def __init__(self,
         dim,                            # Number of output/input channels.
         kernel_size,                    # Width and height of the convolution kernel.
-        padding,                        # Padding for the convolution operation
-        ratio_gin           = 0.75,     # Ratio for input channels to global branch
-        ratio_gout          = 0.75,     # Ratio for output channels from global branch
-        activation          = 'linear' # Activation function: 'relu', 'lrelu', etc.
+        padding,
+        ratio_gin=0.75, 
+        ratio_gout=0.75,
+        activation      = 'linear',     # Activation function: 'relu', 'lrelu', etc.
     ):
         super().__init__()
         if activation == 'linear':
@@ -192,13 +226,14 @@ class FFCBlock(torch.nn.Module):
         
         self.concat_layer = ConcatTupleLayer()
 
-    def forward(self, gen_ft):
+    def forward(self, gen_ft, mask, fname=None):
         x = gen_ft.float()
+#         x = mask*enc_ft + (1-mask)*gen_ft
         x_l, x_g = x[:, :-self.ffc_block.conv1.ffc.global_in_num], x[:, -self.ffc_block.conv1.ffc.global_in_num:]
         
         id_l, id_g = x_l, x_g
         
-        x_l, x_g = self.ffc_block((x_l, x_g))
+        x_l, x_g = self.ffc_block((x_l, x_g), fname=fname)
         
         x_l, x_g = id_l + x_l, id_g + x_g
         
@@ -234,6 +269,7 @@ class EncoderEpilogue(torch.nn.Module):
         self.mbstd = MinibatchStdLayer(group_size=mbstd_group_size, num_channels=mbstd_num_channels) if mbstd_num_channels > 0 else None
         self.conv = Conv2dLayer(in_channels + mbstd_num_channels, in_channels, kernel_size=3, activation=activation, conv_clamp=conv_clamp)
         self.fc = FullyConnectedLayer(in_channels * (resolution ** 2), z_dim, activation=activation)
+        # self.out = FullyConnectedLayer(in_channels, z_dim)
         self.dropout = torch.nn.Dropout(p=0.5)
 
     def forward(self, x, cmap, force_fp32=False):
@@ -250,6 +286,7 @@ class EncoderEpilogue(torch.nn.Module):
             x = self.mbstd(x)
         const_e = self.conv(x)
         x = self.fc(const_e.flatten(1))
+        # x = self.out(x)
         x = self.dropout(x)
 
         # Conditioning.
@@ -404,12 +441,13 @@ class SynthesisLayer(torch.nn.Module):
             x = x * act_gain
         if act_clamp is not None:
             x = x.clamp(-act_clamp, act_clamp)
+        # x = bias_act.bias_act(x.clone(), self.bias.to(x.dtype), act=self.activation, gain=act_gain, clamp=act_clamp)
         return x
 
 #----------------------------------------------------------------------------
 
 @persistence.persistent_class
-class FFCResBlock(torch.nn.Module):
+class FFCSkipLayer(torch.nn.Module):
     def __init__(self,
         dim,                            # Number of input/output channels.
         kernel_size     = 3,            # Convolution kernel size.
@@ -422,8 +460,8 @@ class FFCResBlock(torch.nn.Module):
         self.ffc_act = FFCBlock(dim=dim, kernel_size=kernel_size, activation=nn.ReLU, 
                                     padding=self.padding, ratio_gin=ratio_gin, ratio_gout=ratio_gout)
         
-    def forward(self, gen_ft):
-        x = self.ffc_act(gen_ft)
+    def forward(self, gen_ft, mask, fname=None):
+        x = self.ffc_act(gen_ft, mask, fname=fname)
         return x
 
 #----------------------------------------------------------------------------
@@ -476,12 +514,12 @@ class SynthesisBlock(torch.nn.Module):
         self.register_buffer('resample_filter', upfirdn2d.setup_filter(resample_filter))
         self.num_conv = 0
         self.num_torgb = 0
-        self.res_ffc = {8: 0, 16: 0, 32: 1, 64: 1, 128: 2, 256: 2, 512: 2}
+        self.res_ffc = {4:0, 8: 0, 16: 0, 32: 1, 64: 1, 128: 1, 256: 1, 512: 1}
 
         if in_channels != 0 and resolution >= 8:
-            self.faf_syn = nn.ModuleList()
+            self.ffc_skip = nn.ModuleList()
             for _ in range(self.res_ffc[resolution]):
-                self.faf_syn.append(FFCResBlock(dim=out_channels))
+                self.ffc_skip.append(FFCSkipLayer(dim=out_channels))
         
         if in_channels == 0:
             self.const = torch.nn.Parameter(torch.randn([out_channels, resolution, resolution]))
@@ -504,12 +542,25 @@ class SynthesisBlock(torch.nn.Module):
             self.skip = Conv2dLayer(in_channels, out_channels, kernel_size=1, bias=False, up=2,
                 resample_filter=resample_filter, channels_last=self.channels_last)
 
-    def forward(self, x, feats, img, ws, force_fp32=False, fused_modconv=None, **layer_kwargs):
+    def forward(self, x, mask, feats, img, ws, fname=None, force_fp32=False, fused_modconv=None, **layer_kwargs):
+        # misc.assert_shape(ws, [None, self.num_conv + self.num_torgb, self.w_dim])
+        # w_iter = iter(ws.unbind(dim=1))
         dtype = torch.float16 if self.use_fp16 and not force_fp32 else torch.float32
         memory_format = torch.channels_last if self.channels_last and not force_fp32 else torch.contiguous_format
         if fused_modconv is None:
             with misc.suppress_tracer_warnings(): # this value will be treated as a constant
                 fused_modconv = (not self.training) and (dtype == torch.float32 or int(x.shape[0]) == 1)
+
+        # # Input.
+        # if self.in_channels == 0:
+        #     ic(self.const.shape)
+        #     x = self.const.to(dtype=dtype, memory_format=memory_format)
+        #     x = x.unsqueeze(0).repeat([ws.shape[0], 1, 1, 1])
+        #     ic(x.shape)
+        # else:
+        #     misc.assert_shape(x, [None, self.in_channels, self.resolution // 2, self.resolution // 2])
+        #     x = x.to(dtype=dtype, memory_format=memory_format)
+        #     ic(x.shape, 'ELSE')
         
         x = x.to(dtype=dtype, memory_format=memory_format)
         x_skip = feats[self.resolution].clone().to(dtype=dtype, memory_format=memory_format)
@@ -521,9 +572,10 @@ class SynthesisBlock(torch.nn.Module):
             y = self.skip(x, gain=np.sqrt(0.5))
             x = self.conv0(x, ws[0].clone(), fused_modconv=fused_modconv, **layer_kwargs)
             if len(self.ffc_skip) > 0:
+                mask = F.interpolate(mask, size=x_skip.shape[2:],)
                 z = x + x_skip
-                for fres in self.faf_syn:
-                    z = fres(z)
+                for fres in self.ffc_skip:
+                    z = fres(z, mask)
                 x = x + z
             else:
                 x = x + x_skip 
@@ -531,11 +583,27 @@ class SynthesisBlock(torch.nn.Module):
             x = y.add_(x)
         else:
             x = self.conv0(x, ws[0].clone(), fused_modconv=fused_modconv, **layer_kwargs)
-            if len(self.faf_syn) > 0:
+            if len(self.ffc_skip) > 0:
+                # for i in range(x.shape[0]):
+                #     c, h, w = x[i].shape
+                #     gh = 3
+                #     gw = 3
+                #     save_image_grid(x[i].detach(), f'vis/{fname}_pre_{h}', (gh, gw))
+                mask = F.interpolate(mask, size=x_skip.shape[2:],)
                 z = x + x_skip
-                for fres in self.faf_syn:
-                    z = fres(z)
+                for fres in self.ffc_skip:
+                    z = fres(z, mask)
+                # for i in range(z.shape[0]):
+                #     c, h, w = z[i].shape
+                #     gh = 3
+                #     gw = 3
+                #     save_image_grid(z[i].detach(), f'vis/{fname}_ffc_{h}', (gh, gw))
                 x = x + z
+                # for i in range(x.shape[0]):
+                #     c, h, w = x[i].shape
+                #     gh = 3
+                #     gw = 3
+                #     save_image_grid(x[i].detach(), f'vis/{fname}_post_{h}', (gh, gw))
             else:
                 x = x + x_skip
             x = self.conv1(x, ws[1].clone(), fused_modconv=fused_modconv, **layer_kwargs)

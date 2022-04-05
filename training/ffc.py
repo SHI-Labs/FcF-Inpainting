@@ -2,6 +2,7 @@
 # original implementation https://github.com/pkumivision/FFC/blob/main/model_zoo/ffc.py
 # paper https://proceedings.neurips.cc/paper/2020/file/2fd5d41ec6cfab47e32164d5624269b1-Paper.pdf
 
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -10,6 +11,35 @@ import torch.nn as nn
 import torch.nn.functional as F
 from kornia.geometry.transform import rotate
 import torch.fft as fft
+from icecream import ic
+import PIL
+
+def save_image_grid(feats, fname, gridsize):
+    gw, gh = gridsize
+    idx = gw * gh
+
+    max_num = torch.max(feats[:idx]).item()
+    min_num = torch.min(feats[:idx]).item()
+    feats = feats[:idx].cpu() * 255 / (max_num - min_num) 
+    feats = np.asarray(feats, dtype=np.float32)
+    feats = np.rint(feats).clip(0, 255).astype(np.uint8)
+
+    C, H, W = feats.shape
+
+    feats = feats.reshape(gh, gw, 1, H, W)
+    feats = feats.transpose(0, 3, 1, 4, 2)
+    feats = feats.reshape(gh * H, gw * W, 1)
+    feats = np.stack([feats]*3, axis=2).squeeze() * 10
+    feats = np.rint(feats).clip(0, 255).astype(np.uint8)
+    
+    from icecream import ic
+    ic(feats.shape)
+    
+    feats = PIL.Image.fromarray(feats)
+    feats.save(fname + '.png')
+
+def _conv2d(input, weight, bias=None, stride=1, padding=0, dilation=1, groups=1):
+    return F.conv2d(input=input, weight=weight, bias=bias, stride=stride, padding=padding, dilation=dilation, groups=groups)
 
 class LearnableSpatialTransformWrapper(nn.Module):
     def __init__(self, impl, pad_coef=0.5, angle_init_range=80, train_angle=True):
@@ -147,6 +177,7 @@ class SpectralTransform(nn.Module):
         self.conv1 = nn.Sequential(
             nn.Conv2d(in_channels, out_channels //
                       2, kernel_size=1, groups=groups, bias=False),
+            # nn.BatchNorm2d(out_channels // 2),
             nn.ReLU(inplace=True)
         )
         self.fu = FourierUnit(
@@ -219,7 +250,7 @@ class FFC(nn.Module):
         module = nn.Identity if in_cg == 0 or out_cl == 0 or not self.gated else nn.Conv2d
         self.gate = module(in_channels, 2, 1)
 
-    def forward(self, x):
+    def forward(self, x, fname=None):
         x_l, x_g = x if type(x) is tuple else (x, 0)
         out_xl, out_xg = 0, 0
 
@@ -234,12 +265,42 @@ class FFC(nn.Module):
         else:
             g2l_gate, l2g_gate = 1, 1
             
+        # for i in range(x_g.shape[0]):
+        #     c, h, w = x_g[i].shape
+        #     gh = 3
+        #     gw = 3
+        #     save_image_grid(x_g[i].detach(), f'vis/{fname}_xg_{h}', (gh, gw))
+        
+        # for i in range(x_l.shape[0]):
+        #     c, h, w = x_l[i].shape
+        #     gh = 3
+        #     gw = 3
+        #     save_image_grid(x_l[i].detach(), f'vis/{fname}_xl_{h}', (gh, gw))
+            
         spec_x = self.convg2g(x_g)
         
+        # for i in range(spec_x.shape[0]):
+        #     c, h, w = spec_x[i].shape
+        #     gh = 3
+        #     gw = 3
+        #     save_image_grid(spec_x[i].detach(), f'vis/{fname}_spec_x_{h}', (gh, gw))
+
         if self.ratio_gout != 1:
             out_xl = self.convl2l(x_l) + self.convg2l(x_g) * g2l_gate
         if self.ratio_gout != 0:
             out_xg = self.convl2g(x_l) * l2g_gate + spec_x
+        
+        # for i in range(out_xg.shape[0]):
+        #     c, h, w = out_xg[i].shape
+        #     gh = 3
+        #     gw = 3
+        #     save_image_grid(out_xg[i].detach(), f'vis/{fname}_outg_{h}', (gh, gw))
+        
+        # for i in range(out_xl.shape[0]):
+        #     c, h, w = out_xl[i].shape
+        #     gh = 3
+        #     gw = 3
+        #     save_image_grid(out_xl[i].detach(), f'vis/{fname}_outl_{h}', (gh, gw))
 
         return out_xl, out_xg
 
@@ -255,14 +316,19 @@ class FFC_BN_ACT(nn.Module):
         self.ffc = FFC(in_channels, out_channels, kernel_size,
                        ratio_gin, ratio_gout, stride, padding, dilation,
                        groups, bias, enable_lfu, padding_type=padding_type, **kwargs)
+        lnorm = nn.Identity if ratio_gout == 1 else norm_layer
+        gnorm = nn.Identity if ratio_gout == 0 else norm_layer
+        global_channels = int(out_channels * ratio_gout)
+        # self.bn_l = lnorm(out_channels - global_channels)
+        # self.bn_g = gnorm(global_channels)
 
         lact = nn.Identity if ratio_gout == 1 else activation_layer
         gact = nn.Identity if ratio_gout == 0 else activation_layer
         self.act_l = lact(inplace=True)
         self.act_g = gact(inplace=True)
 
-    def forward(self, x):
-        x_l, x_g = self.ffc(x)
+    def forward(self, x, fname=None):
+        x_l, x_g = self.ffc(x, fname=fname,)
         x_l = self.act_l(x_l)
         x_g = self.act_g(x_g)
         return x_l, x_g
@@ -287,7 +353,7 @@ class FFCResnetBlock(nn.Module):
             self.conv2 = LearnableSpatialTransformWrapper(self.conv2, **spatial_transform_kwargs)
         self.inline = inline
 
-    def forward(self, x):
+    def forward(self, x, fname=None):
         if self.inline:
             x_l, x_g = x[:, :-self.conv1.ffc.global_in_num], x[:, -self.conv1.ffc.global_in_num:]
         else:
@@ -295,8 +361,8 @@ class FFCResnetBlock(nn.Module):
 
         id_l, id_g = x_l, x_g
 
-        x_l, x_g = self.conv1(x_l, x_g)
-        x_l, x_g = self.conv2(x_l, x_g)
+        x_l, x_g = self.conv1((x_l, x_g), fname=fname)
+        x_l, x_g = self.conv2((x_l, x_g), fname=fname)
 
         x_l, x_g = id_l + x_l, id_g + x_g
         out = x_l, x_g

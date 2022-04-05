@@ -57,8 +57,7 @@ def pil_to_numpy(pil_img: Image) -> Tuple[torch.Tensor, torch.Tensor]:
     img = np.array(pil_img)
     return torch.from_numpy(img)[None].permute(0, 3, 1, 2).float() / 127.5 - 1
 
-
-def inpaint(input_img, mask, cpkt):
+def inpaint(input_img, mask, ckpt):
     mask = mask.convert('L')
     mask = np.array(mask) / 255.
     mask = cv2.resize(mask,
@@ -78,12 +77,8 @@ def inpaint(input_img, mask, cpkt):
     rgb_erased = rgb.clone()
     rgb_erased = rgb_erased * (1 - mask_tensor) # erase rgb
     rgb_erased = rgb_erased.to(torch.float32)
-
-    from icecream import ic
-    ic(rgb_erased.shape)
-    ic(mask_tensor.shape)
     
-    model = create_model(cpkt)
+    model = create_model(ckpt)
     comp_img = fcf_inpaint(G=model, org_img=rgb.to(torch.float32), erased_img=rgb_erased.to(torch.float32), mask=mask_tensor.to(torch.float32))
     rgb_erased = denorm(rgb_erased)
     comp_img = denorm(comp_img)
@@ -98,15 +93,15 @@ if __name__ == "__main__":
                         help='path to img')
     parser.add_argument('--output', type=str,
                         help='output dir')
-    parser.add_argument('--cpkt', type=str,
+    parser.add_argument('--ckpt', type=str,
                         help='checkpoint path')
     args = parser.parse_args()
 
     os.makedirs(args.output, exist_ok=True)
 
     img = Image.open(args.img_path)
-    name = img.split('/')[-1]
-    ext = file_ext(img)
+    name = args.img_path.split('/')[-1]
+    ext = file_ext(name)
     mask = Image.open(args.img_path.replace(ext, f'_mask{ext}'))
-    comp_img = inpaint(img, mask, args.cpkt)
+    comp_img = inpaint(img, mask, args.ckpt)
     comp_img.save(os.path.join(args.output, name))
