@@ -190,7 +190,7 @@ class SynthesisNetwork(torch.nn.Module):
                 img_channels=img_channels, is_last=is_last, use_fp16=use_fp16, **block_kwargs)
             setattr(self, f'b{res}', block)
 
-    def forward(self, x_global, feats, ws, **block_kwargs):
+    def forward(self, x_global, mask, feats, ws, fname=None, **block_kwargs):
         
         img = None
 
@@ -212,8 +212,10 @@ class SynthesisNetwork(torch.nn.Module):
             mod_vector_rgb.append(ws[:, int(np.log2(res))*2-3])
             mod_vector_rgb.append(x_global.clone())
             mod_vector_rgb = torch.cat(mod_vector_rgb, dim = 1)
-
-            x, img = block(x, feats, img, (mod_vector0, mod_vector1, mod_vector_rgb), **block_kwargs)
+            # ic(x.shape)
+            x, img = block(x, mask, feats, img, (mod_vector0, mod_vector1, mod_vector_rgb), fname=fname, **block_kwargs)
+            # ic(x.shape)
+            # ic('--------')
         return img
 
 #----------------------------------------------------------------------------
@@ -241,10 +243,12 @@ class Generator(torch.nn.Module):
         self.num_ws = self.synthesis.num_ws
         self.mapping = MappingNetwork(z_dim=z_dim, c_dim=c_dim, w_dim=w_dim, num_ws=self.num_ws, **mapping_kwargs)
 
-    def forward(self, img, c, truncation_psi=1, truncation_cutoff=None, **synthesis_kwargs):
+    def forward(self, img, c, fname=None, truncation_psi=1, truncation_cutoff=None, **synthesis_kwargs):
+        mask = img[:, -1].unsqueeze(1)
         x_global, z, feats = self.encoder(img, c)
         ws = self.mapping(z, c, truncation_psi=truncation_psi, truncation_cutoff=truncation_cutoff)
-        img = self.synthesis(x_global, feats, ws, **synthesis_kwargs)
+        img = self.synthesis(x_global, mask, feats, ws, fname=fname, **synthesis_kwargs)
+        # exit()
         return img
 
 #----------------------------------------------------------------------------

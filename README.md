@@ -168,8 +168,9 @@ This repo contains the code for our paper **Keys to Better Image Inpainting: Str
 
 | **checkpoint** | **Description** |
 |:--------------:|:---------------:|
+| [places_512.pkl](https://drive.google.com/file/d/1VefESyWOyyYNgyvHQxLSTGt0IuB363xd/view?usp=sharing) | Model trained on 512x512 for 25M Places2 images |
 | [places.pkl](https://drive.google.com/file/d/1U5P4KGSaQ6WdBuOMzElSlC-BI_gvTVPd/view?usp=sharing) | Model trained on 256x256 for 25M Places2 images |
-| [celeba-hq.pkl](https://drive.google.com/file/d/17ljpuabSHOnxGZU_22T0Z2ztWkOLTqJt/view?usp=sharing) | Model trained on 128x128 for 25M CelebA-HQ images |
+| [celeba-hq.pkl](https://drive.google.com/file/d/1Zz99CQjE8SQbvsYFHzZSg5FKmL2-MDbh/view?usp=sharing) | Model trained on 128x128 for 25M CelebA-HQ images |
 
 - Run the following command to calculate the metric scores (fid, ssim and lpips) using 8 gpus:
 

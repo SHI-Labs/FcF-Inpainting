@@ -13,7 +13,7 @@ import torch
 
 import legacy
 
-from training.data.pred_loader import get_loader
+from training.data.demo_loader import get_loader
 
 import warnings
 warnings.filterwarnings("ignore")
