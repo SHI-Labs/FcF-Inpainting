@@ -170,7 +170,7 @@ This repo contains the code for our paper **Keys to Better Image Inpainting: Str
 
 | **checkpoint** | **Description** |
 |:--------------:|:---------------:|
-| [places_512.pkl](https://drive.google.com/file/d/1VefESyWOyyYNgyvHQxLSTGt0IuB363xd/view?usp=sharing) | Model trained on 512x512 for 25M Places2 images |
+| [places_512.pkl](https://drive.google.com/file/d/1-44Esd02ReZwFNGq6_epjQ4s-2P6iUdL/view?usp=sharing) | Model trained on 512x512 for 25M Places2 images |
 | [places.pkl](https://drive.google.com/file/d/1U5P4KGSaQ6WdBuOMzElSlC-BI_gvTVPd/view?usp=sharing) | Model trained on 256x256 for 25M Places2 images |
 | [celeba-hq.pkl](https://drive.google.com/file/d/1Zz99CQjE8SQbvsYFHzZSg5FKmL2-MDbh/view?usp=sharing) | Model trained on 128x128 for 25M CelebA-HQ images |
 
@@ -192,7 +192,8 @@ This repo contains the code for our paper **Keys to Better Image Inpainting: Str
     ```.bash
     python demo.py \
     --img_data=datasets/demo/places2 \
-    --network=[path-to-checkpoint]
+    --network=[path-to-checkpoint] \
+    --resolution 256
     ```
 
 <!-- ## 4. Citing FcF-Inpainting
