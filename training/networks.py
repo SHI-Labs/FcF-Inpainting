@@ -157,7 +157,7 @@ class EncoderNetwork(torch.nn.Module):
 
         B, _ = x.shape
         z = torch.randn((B, self.z_dim), requires_grad=False, dtype=x.dtype, device=x.device) ## Noise for Co-Modulation
-        return x, z, feats      ## 1/2, 1/4, 1/8, 1/16, 1/32, 1/64
+        return x, z, feats 
 
 #----------------------------------------------------------------------------
 
@@ -220,10 +220,7 @@ class SynthesisNetwork(torch.nn.Module):
             mod_vector_rgb.append(ws[:, int(np.log2(res))*2-3])
             mod_vector_rgb.append(x_global.clone())
             mod_vector_rgb = torch.cat(mod_vector_rgb, dim = 1)
-            # ic(x.shape)
             x, img = block(x, mask, feats, img, (mod_vector0, mod_vector1, mod_vector_rgb), fname=fname, **block_kwargs)
-            # ic(x.shape)
-            # ic('--------')
         return img
 
 #----------------------------------------------------------------------------
@@ -256,7 +253,6 @@ class Generator(torch.nn.Module):
         x_global, z, feats = self.encoder(img, c)
         ws = self.mapping(z, c, truncation_psi=truncation_psi, truncation_cutoff=truncation_cutoff)
         img = self.synthesis(x_global, mask, feats, ws, fname=fname, **synthesis_kwargs)
-        # exit()
         return img
 
 #----------------------------------------------------------------------------

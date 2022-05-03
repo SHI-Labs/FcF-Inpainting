@@ -1,8 +1,6 @@
 # FcF-Inpainting
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/SHI-Labs/FcF-Inpainting/blob/main/colab/FcF_Inpainting.ipynb)
-
-[![Framework: PyTorch](https://img.shields.io/badge/Framework-PyTorch-orange.svg)](https://pytorch.org/) [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/SHI-Labs/FcF-Inpainting/blob/main/colab/FcF_Inpainting.ipynb) [![Huggingface space](https://img.shields.io/badge/🤗-Huggingface%20Space-cyan.svg)](https://huggingface.co/spaces/shi-lab/FcF-Inpainting) [![Framework: PyTorch](https://img.shields.io/badge/Framework-PyTorch-orange.svg)](https://pytorch.org/) [![License](https://img.shields.io/badge/License-Apache_2.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
 
 [Jitesh Jain](https://praeclarumjj3.github.io/), [Yuqian Zhou](https://yzhouas.github.io/), [Ning Yu](https://ningyu1991.github.io/), [Humphrey Shi](https://www.humphreyshi.com/home)
 <!-- 
@@ -172,7 +170,7 @@ This repo contains the code for our paper **Keys to Better Image Inpainting: Str
 |:--------------:|:---------------:|
 | [places_512.pkl](https://drive.google.com/file/d/1-44Esd02ReZwFNGq6_epjQ4s-2P6iUdL/view?usp=sharing) | Model trained on 512x512 for 25M Places2 images |
 | [places.pkl](https://drive.google.com/file/d/1U5P4KGSaQ6WdBuOMzElSlC-BI_gvTVPd/view?usp=sharing) | Model trained on 256x256 for 25M Places2 images |
-| [celeba-hq.pkl](https://drive.google.com/file/d/1Zz99CQjE8SQbvsYFHzZSg5FKmL2-MDbh/view?usp=sharing) | Model trained on 128x128 for 25M CelebA-HQ images |
+| [celeba-hq.pkl](https://drive.google.com/file/d/1Zz99CQjE8SQbvsYFHzZSg5FKmL2-MDbh/view?usp=sharing) | Model trained on 256x256 for 25M CelebA-HQ images |
 
 - Run the following command to calculate the metric scores (fid, ssim and lpips) using 8 gpus:
 
