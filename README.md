@@ -3,8 +3,8 @@
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/SHI-Labs/FcF-Inpainting/blob/main/colab/FcF_Inpainting.ipynb) [![Huggingface space](https://img.shields.io/badge/🤗-Huggingface%20Space-cyan.svg)](https://huggingface.co/spaces/shi-lab/FcF-Inpainting) [![Framework: PyTorch](https://img.shields.io/badge/Framework-PyTorch-orange.svg)](https://pytorch.org/) [![License](https://img.shields.io/badge/License-Apache_2.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
 
 [Jitesh Jain](https://praeclarumjj3.github.io/), [Yuqian Zhou](https://yzhouas.github.io/), [Ning Yu](https://ningyu1991.github.io/), [Humphrey Shi](https://www.humphreyshi.com/home)
-<!-- 
-[[`arXiv`](https://arxiv.org/abs/2112.12782)] [[`pdf`](https://arxiv.org/pdf/2112.12782.pdf)] [[`BibTeX`](#3-citing-semask)] -->
+
+[[`Project Page`](https://praeclarumjj3.github.io/fcf-inpainting/)] [[`arXiv`](https://arxiv.org/abs/2112.12782)] [[`pdf`](https://arxiv.org/pdf/2112.12782.pdf)] [[`BibTeX`](#4-citing-fcf-inpainting)]
 
 This repo contains the code for our paper **Keys to Better Image Inpainting: Structure and Texture Go Hand in Hand**.
 
@@ -15,7 +15,7 @@ This repo contains the code for our paper **Keys to Better Image Inpainting: Str
 1. [Setup Instructions](#1-setup-instructions)
 2. [Dataset Preparation](#2-dataset-preparation)
 3. [Training and Evaluation](#3-training-and-evaluation)
-<!-- 4. [Citing FcF-Inpainting](#4-citing-fcf-inpainting) -->
+4. [Citing FcF-Inpainting](#4-citing-fcf-inpainting)
 
 ## 1. Setup Instructions
 
@@ -194,7 +194,7 @@ This repo contains the code for our paper **Keys to Better Image Inpainting: Str
     --resolution 256
     ```
 
-<!-- ## 4. Citing FcF-Inpainting
+## 4. Citing FcF-Inpainting
 
 ```BibTeX
 @article{jain2022keys,
@@ -202,8 +202,8 @@ This repo contains the code for our paper **Keys to Better Image Inpainting: Str
   author={Jitesh Jain and Yuqian Zhou and Ning Yu and Humphrey Shi},
   journal={arXiv},
   year={2022}
-} -->
-<!-- ``` -->
+} 
+```
 
 ## Acknowledgement
 
