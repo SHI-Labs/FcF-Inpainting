@@ -2,9 +2,11 @@
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/SHI-Labs/FcF-Inpainting/blob/main/colab/FcF_Inpainting.ipynb) [![Huggingface space](https://img.shields.io/badge/🤗-Huggingface%20Space-cyan.svg)](https://huggingface.co/spaces/shi-lab/FcF-Inpainting) [![Framework: PyTorch](https://img.shields.io/badge/Framework-PyTorch-orange.svg)](https://pytorch.org/) [![License](https://img.shields.io/badge/License-Apache_2.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
 
-[Jitesh Jain](https://praeclarumjj3.github.io/), [Yuqian Zhou](https://yzhouas.github.io/), [Ning Yu](https://ningyu1991.github.io/), [Humphrey Shi](https://www.humphreyshi.com/home)
+[Jitesh Jain](https://praeclarumjj3.github.io/)<sup>&dagger;</sup>, [Yuqian Zhou](https://yzhouas.github.io/)<sup>&dagger;</sup>, [Ning Yu](https://ningyu1991.github.io/), [Humphrey Shi](https://www.humphreyshi.com/home)
 
-[[`Project Page`](https://praeclarumjj3.github.io/fcf-inpainting/)] [[`arXiv`](https://arxiv.org/abs/2112.12782)] [[`pdf`](https://arxiv.org/pdf/2112.12782.pdf)] [[`BibTeX`](#4-citing-fcf-inpainting)]
+<sup>&dagger;</sup> Equal Contribution
+
+[[`Project Page`](https://praeclarumjj3.github.io/fcf-inpainting/)] [[`arXiv`](http://arxiv.org/abs/2208.03382/2112.12782)] [[`pdf`](http://arxiv.org/pdf/2208.03382.pdf)] [[`BibTeX`](#4-citing-fcf-inpainting)]
 
 This repo contains the code for our paper **Keys to Better Image Inpainting: Structure and Texture Go Hand in Hand**.
 
