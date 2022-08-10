@@ -6,7 +6,7 @@
 
 <sup>&dagger;</sup> Equal Contribution
 
-[[`Project Page`](https://praeclarumjj3.github.io/fcf-inpainting/)] [[`arXiv`](http://arxiv.org/abs/2208.03382/2112.12782)] [[`pdf`](http://arxiv.org/pdf/2208.03382.pdf)] [[`BibTeX`](#4-citing-fcf-inpainting)]
+[[`Project Page`](https://praeclarumjj3.github.io/fcf-inpainting/)] [[`arXiv`](http://arxiv.org/abs/2208.03382)] [[`pdf`](http://arxiv.org/pdf/2208.03382.pdf)] [[`BibTeX`](#4-citing-fcf-inpainting)]
 
 This repo contains the code for our paper **Keys to Better Image Inpainting: Structure and Texture Go Hand in Hand**.
 
@@ -87,7 +87,7 @@ This repo contains the code for our paper **Keys to Better Image Inpainting: Str
     mkdir -p datasets/
     mkdir datasets/places2_dataset/
     wget http://data.csail.mit.edu/places/places365/train_large_places365challenge.tar
-    tar -xvf train_large_places365standard.tar -C datasets/places2_dataset/
+    tar -xvf train_large_places365challenge.tar -C datasets/places2_dataset/
     mv datasets/places2_datasets/data_large datasets/places2_dataset/train
     
     wget http://data.csail.mit.edu/places/places365/val_large.tar
