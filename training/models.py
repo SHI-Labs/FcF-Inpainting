@@ -15,6 +15,10 @@ from training.ffc import FFCResnetBlock, ConcatTupleLayer
 #----------------------------------------------------------------------------
 
 @misc.profiled_function
+def normalize_2nd_moment(x, dim=1, eps=1e-8):
+    return x * (x.square().mean(dim=dim, keepdim=True) + eps).rsqrt()
+
+@misc.profiled_function
 def modulated_conv2d(
     x,                          # Input tensor of shape [batch_size, in_channels, in_height, in_width].
     weight,                     # Weight tensor of shape [out_channels, in_channels, kernel_height, kernel_width].
