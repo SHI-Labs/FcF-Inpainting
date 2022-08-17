@@ -2,7 +2,7 @@
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/SHI-Labs/FcF-Inpainting/blob/main/colab/FcF_Inpainting.ipynb) [![Huggingface space](https://img.shields.io/badge/🤗-Huggingface%20Space-cyan.svg)](https://huggingface.co/spaces/shi-lab/FcF-Inpainting) [![Framework: PyTorch](https://img.shields.io/badge/Framework-PyTorch-orange.svg)](https://pytorch.org/) [![License](https://img.shields.io/badge/License-Apache_2.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
 
-[Jitesh Jain](https://praeclarumjj3.github.io/)<sup>&dagger;</sup>, [Yuqian Zhou](https://yzhouas.github.io/)<sup>&dagger;</sup>, [Ning Yu](https://ningyu1991.github.io/), [Humphrey Shi](https://www.humphreyshi.com/home)
+[Jitesh Jain](https://praeclarumjj3.github.io/)<sup>&dagger;</sup>, [Yuqian Zhou](https://yzhouas.github.io/)<sup>&dagger;</sup>, [Ning Yu](https://ningyu1991.github.io/), [Humphrey Shi](https://www.humphreyshi.com/home), **WACV 2023**
 
 <sup>&dagger;</sup> Equal Contribution
 
@@ -199,11 +199,11 @@ This repo contains the code for our paper **Keys to Better Image Inpainting: Str
 ## 4. Citing FcF-Inpainting
 
 ```BibTeX
-@article{jain2022keys,
+@inproceedings{jain2022keys,
   title={Keys to Better Image Inpainting: Structure and Texture Go Hand in Hand},
   author={Jitesh Jain and Yuqian Zhou and Ning Yu and Humphrey Shi},
-  journal={arXiv},
-  year={2022}
+  booktitle={WACV},
+  year={2023}
 } 
 ```
 
