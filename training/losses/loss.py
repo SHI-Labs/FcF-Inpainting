@@ -32,7 +32,7 @@ class StyleGAN2Loss(Loss):
         self.pl_mean = torch.zeros([], device=device)
         self.run_hrfpl = HRFPL(weight=5, weights_path=os.getcwd())
 
-    def run_G(self, r_img, c, sync):
+    def run_G(self, r_img, mask, c, sync):
         with misc.ddp_sync(self.G_encoder, sync):
             x_global, z, feats = self.G_encoder(r_img, c)
         with misc.ddp_sync(self.G_mapping, sync):
@@ -43,7 +43,7 @@ class StyleGAN2Loss(Loss):
                     cutoff = torch.where(torch.rand([], device=ws.device) < self.style_mixing_prob, cutoff, torch.full_like(cutoff, ws.shape[1]))
                     ws[:, cutoff:] = self.G_mapping(torch.randn_like(z), c, skip_w_avg_update=True)[:, cutoff:]
         with misc.ddp_sync(self.G_synthesis, sync):
-            img = self.G_synthesis(x_global, feats, ws)
+            img = self.G_synthesis(x_global, mask, feats, ws)
         return img, ws
 
     def run_D(self, img, c, sync):
@@ -86,7 +86,7 @@ class StyleGAN2Loss(Loss):
         if do_Dmain:
             with torch.autograd.profiler.record_function('Dgen_forward'):
                 g_inputs = torch.cat([0.5 - mask, erased_img], dim=1)
-                gen_img, _ = self.run_G(g_inputs, gen_c, sync=sync) # May get synced by Gpl.
+                gen_img, _ = self.run_G(g_inputs, mask, gen_c, sync=sync) # May get synced by Gpl.
                 gen_img = gen_img * mask + real_img * (1 - mask)
                 if self.augment_pipe is not None:
                     gen_img = self.augment_pipe(gen_img)
