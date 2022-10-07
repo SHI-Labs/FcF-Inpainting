@@ -14,6 +14,7 @@ This repo contains the code for our paper **Keys to Better Image Inpainting: Str
 
 ## News
 
+- [October 6, 2022]: You can host your own FcF-Inpainting demo using streamlit by following the [instructions here](streamlit_demo/).
 - [September 5, 2022]: FcF-Inpainting is now available in the image inpainting tool [Lama Cleaner](https://github.com/Sanster/lama-cleaner). Thanks to [@Sanster](https://github.com/Sanster) for integrating FcF-Inpainting into Lama Cleaner!
 - [August 16, 2022]: FcF-Inpainting is accepted to WACV 2023!
 - [August 5, 2022]: [**Project Page**](https://praeclarumjj3.github.io/fcf-inpainting/), [**ArXiv Preprint**](http://arxiv.org/abs/2208.03382) and [**GitHub Repo**](https://github.com/SHI-Labs/FcF-Inpainting) are public!
