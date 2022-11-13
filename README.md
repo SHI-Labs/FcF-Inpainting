@@ -1,6 +1,6 @@
 # FcF-Inpainting
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/SHI-Labs/FcF-Inpainting/blob/main/colab/FcF_Inpainting.ipynb) [![Huggingface space](https://img.shields.io/badge/🤗-Huggingface%20Space-cyan.svg)](https://huggingface.co/spaces/shi-lab/FcF-Inpainting) [![Framework: PyTorch](https://img.shields.io/badge/Framework-PyTorch-orange.svg)](https://pytorch.org/) [![License](https://img.shields.io/badge/License-Apache_2.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/SHI-Labs/FcF-Inpainting/blob/main/colab/FcF_Inpainting.ipynb) [![Huggingface space](https://img.shields.io/badge/🤗-Huggingface%20Space-cyan.svg)](https://huggingface.co/spaces/shi-labs/FcF-Inpainting) [![Framework: PyTorch](https://img.shields.io/badge/Framework-PyTorch-orange.svg)](https://pytorch.org/) [![License](https://img.shields.io/badge/License-Apache_2.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
 
 [Jitesh Jain](https://praeclarumjj3.github.io/)<sup>&dagger;</sup>, [Yuqian Zhou](https://yzhouas.github.io/)<sup>&dagger;</sup>, [Ning Yu](https://ningyu1991.github.io/), [Humphrey Shi](https://www.humphreyshi.com/home), **WACV 2023**
 
@@ -67,7 +67,7 @@ This repo contains the code for our paper **Keys to Better Image Inpainting: Str
     ```.bash
     mkdir -p datasets/
     # unzip & split into train/test/visualization
-    sh tools/celebahq_dataset_prepare.sh
+    bash tools/prepare_celebahq.sh
 
     datasets
     ├── celeba-hq-dataset
