@@ -243,7 +243,7 @@ class Generator(torch.nn.Module):
         self.mapping = MappingNetwork(z_dim=z_dim, c_dim=c_dim, w_dim=w_dim, num_ws=self.num_ws, **mapping_kwargs)
 
     def forward(self, img, c, fname=None, truncation_psi=1, truncation_cutoff=None, **synthesis_kwargs):
-        mask = img[:, -1].unsqueeze(1)
+        mask = img[:, 0].unsqueeze(1)
         x_global, z, feats = self.encoder(img, c)
         ws = self.mapping(z, c, truncation_psi=truncation_psi, truncation_cutoff=truncation_cutoff)
         img = self.synthesis(x_global, mask, feats, ws, fname=fname, **synthesis_kwargs)

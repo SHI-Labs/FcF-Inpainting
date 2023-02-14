@@ -62,7 +62,7 @@ class StyleGAN2Loss(Loss):
         if do_Gmain:
             with torch.autograd.profiler.record_function('Gmain_forward'):
                 g_inputs = torch.cat([0.5 - mask, erased_img], dim=1)
-                gen_img, _ = self.run_G(g_inputs, gen_c, sync=sync) # May get synced by Gpl.
+                gen_img, _ = self.run_G(g_inputs, mask, gen_c, sync=sync) # May get synced by Gpl.
                 gen_img = gen_img * mask + real_img * (1 - mask)
                 loss_rec = 10 * torch.nn.functional.l1_loss(gen_img, real_img)
                 loss_pl = self.run_hrfpl(gen_img, real_img)
