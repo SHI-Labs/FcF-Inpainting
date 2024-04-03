@@ -62,7 +62,7 @@ This repo contains the code for our paper **Keys to Better Image Inpainting: Str
 
 #### Training Data
 
-- Download data256x256.zip from [gdrive](https://drive.google.com/drive/folders/11Vz0fqHS2rXDb5pprgTjpD7S2BAJhi1P).
+- Download data256x256.zip from [gdrive](https://drive.google.com/drive/folders/11Vz0fqHS2rXDb5pprgTjpD7S2BAJhi1P). link doesnt work try: https://www.kaggle.com/datasets/badasstechie/celebahq-resized-256x256
 
     ```.bash
     mkdir -p datasets/
